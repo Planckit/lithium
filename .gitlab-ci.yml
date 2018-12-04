@@ -1,0 +1,84 @@
+variables:
+  SCOPE: "@pi-lithium"
+  SCOPE_SHORT: "@pi-li"
+
+stages:
+ - prepare
+ - build
+ - test
+ - release
+ - deploy
+
+cache:
+  key: node_modules
+  paths:
+    - "packages/*/node_modules"
+    - node_modules/
+
+
+prep:
+    stage: prepare
+    image: node:latest
+    cache:
+      key: node_modules
+      paths:
+        - "packages/*/node_modules"
+        - node_modules/
+    script:
+    - yarn add -W lerna
+    - npx lerna bootstrap
+    - ls packages/core
+    artifacts:
+      untracked: true
+
+build:
+  stage: build
+  image: node:latest
+  cache:
+    key: node_modules
+    policy: pull
+    paths:
+      - "packages/*/node_modules"
+      - node_modules/
+  dependencies:
+  - prep
+  script:
+  - ls
+  - ls packages/core
+  - npx lerna run --scope $SCOPE/* build
+  artifacts:
+    paths:
+    - packages/*/lib/
+    - packages/*/es/
+    - packages/*/babel.config.js
+
+test:
+  stage: test
+  image: node:latest
+  cache:
+    key: node_modules
+    policy: pull
+    paths:
+      - "packages/*/node_modules"
+      - node_modules/
+  dependencies:
+  - prep
+  - build
+  script:
+  - npx lerna run --scope $SCOPE/* test
+
+release npm:
+  stage: release
+  image: node:latest
+  environment: npm
+  dependencies:
+  - build
+  script:
+    - 'echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc'
+    - npm config list
+    - git checkout -B "$CI_COMMIT_REF_NAME" "$CI_COMMIT_SHA"
+    - npx lerna version patch --skip-git --yes
+    # - npx lerna version patch --yes
+    - npx lerna exec --scope $SCOPE/* -- npm publish
+    - npx lerna exec --scope $SCOPE/* -- npx replace $SCOPE $SCOPE_SHORT package.json
+    - npx lerna exec --scope $SCOPE/* -- npm publish

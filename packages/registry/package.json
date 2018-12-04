@@ -1,0 +1,19 @@
+{
+    "name": "@pi-lithium/registry",
+    "version": "0.0.2",
+    "description": "",
+    "main": "lib/index.js",
+    "module": "es/index.js",
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "test": "echo \"No test specified\" && exit 0",
+        "build": "rollup --help && npm run build:config && npm run build:commonjs && npm run build:es",
+        "build:commonjs": "babel src --out-dir lib",
+        "build:es": "babel src --env-name es6 --out-dir es",
+        "build:config": "rollup babel.config.es6.js --file babel.config.js --format cjs"
+    },
+    "author": "",
+    "license": "ISC"
+}

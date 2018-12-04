@@ -1,0 +1,16 @@
+.DS_Store
+/node_modules
+/packages/*/node_modules
+/packages/*/LICENSE
+*.log
+*.cache
+/build
+/.eslintcache
+/runtime.js
+coverage
+dist
+package-lock.json
+yarn.lock
+.nyc_output
+/codemods/*/lib
+/codemods/*/node_modules

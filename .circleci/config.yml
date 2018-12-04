@@ -1,0 +1,50 @@
+version: 2
+aliases:
+  - &restore-node-modules-cache
+    keys:
+      - v1-yarn-deps-{{ checksum "yarn.lock" }}
+
+  - &restore-yarn-cache
+    keys:
+      - v1-yarn-cache
+
+  - &save-node-modules-cache
+    paths:
+      - node_modules
+    key: v1-yarn-deps-{{ checksum "yarn.lock" }}
+
+  - &save-yarn-cache
+    paths:
+      - ~/.yarn-cache
+    key: v1-yarn-cache
+
+  - &artifact_helium
+    path: ~/helium/packages/helium-standalone/helium.js
+
+  - &artifact_helium_min
+    path: ~/helium/packages/helium-standalone/helium.min.js
+
+  - &artifact_env
+    path: ~/helium/packages/helium-preset-env-standalone/helium-preset-env.js
+
+  - &artifact_env_min
+    path: ~/helium/packages/helium-preset-env-standalone/helium-preset-env.min.js
+
+jobs:
+  build:
+    working_directory: ~/helium
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - restore-cache: *restore-yarn-cache
+      - restore-cache: *restore-node-modules-cache
+      - run: yarn --version
+      - run: make test-ci-coverage
+      # Builds helium-standalone with the regular Helium config
+      - run: make build
+      - run: ./node_modules/.bin/jest packages/helium/test/
+      - store_artifacts: *artifact_helium
+      - store_artifacts: *artifact_helium_min
+      - save_cache: *save-node-modules-cache
+      - save_cache: *save-yarn-cache

@@ -1,0 +1,33 @@
+{
+    "name": "@pi-lithium/core",
+    "version": "0.0.2",
+    "description": "",
+    "main": "lib/index.js",
+    "module": "es/index.js",
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "test": "echo \"No test specified\" && exit 0",
+        "build": "ls . && ls node_modules/.bin && rollup --help && npm run build:config && npm run build:commonjs && npm run build:es",
+        "build:commonjs": "babel src --out-dir lib",
+        "build:es": "babel src --env-name es6 --out-dir es",
+        "build:config": "rollup babel.config.es6.js --file babel.config.js --format cjs"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@babel/cli": "^7.1.2",
+        "@babel/preset-env": "^7.1.0",
+        "doclets": "^1.0.0",
+        "doxdox": "^2.0.3",
+        "jsdoc": "^3.5.5",
+        "jsdoc-to-markdown": "^4.0.1",
+        "node-slate": "^1.8.3",
+        "rollup": "^0.67.0"
+    },
+    "dependencies": {
+        "documentation": "^8.1.2",
+        "jsdoc-to-markdown": "^4.0.1"
+    }
+}
